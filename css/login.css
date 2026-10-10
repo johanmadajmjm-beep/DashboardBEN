@@ -1,0 +1,352 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  --nlr-700    : #c44200;
+  --nlr-600    : #d4500a;
+  --nlr-500    : #e05a1a;
+  --nlr-400    : #f07030;
+  --nlr-100    : #fde8d8;
+  --ink-950    : #0a0e14;
+  --ink-900    : #111520;
+  --ink-800    : #1a2030;
+  --ink-600    : #2e3a4e;
+  --ink-300    : #8a9ab0;
+  --white      : #ffffff;
+  --font-body  : 'Plus Jakarta Sans', sans-serif;
+  --font-mono  : 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+
+body {
+  font-family     : var(--font-body);
+  min-height      : 100vh;
+  display         : flex;
+  -webkit-font-smoothing: antialiased;
+  background      : var(--ink-950);
+}
+
+/* ── SPLIT LAYOUT: kiri oranye solid, kanan form ── */
+.login-left {
+  flex            : 0 0 40%;
+  background      : linear-gradient(160deg, var(--nlr-500) 0%, var(--nlr-700) 100%);
+  display         : flex;
+  flex-direction  : column;
+  justify-content : center;
+  padding         : 60px 48px;
+  position        : relative;
+  overflow        : hidden;
+}
+
+/* Lingkaran dekoratif di kiri */
+.login-left::before {
+  content       : '';
+  position      : absolute;
+  width         : 320px; height: 320px;
+  border-radius : 50%;
+  border        : 60px solid rgba(255,255,255,.08);
+  top           : -80px; right: -80px;
+}
+.login-left::after {
+  content       : '';
+  position      : absolute;
+  width         : 200px; height: 200px;
+  border-radius : 50%;
+  border        : 40px solid rgba(255,255,255,.06);
+  bottom        : -40px; left: -40px;
+}
+
+.left-logo {
+  display       : flex;
+  align-items   : center;
+  gap           : 12px;
+  margin-bottom : 48px;
+  position      : relative;
+  z-index       : 1;
+}
+.left-logo-badge {
+  width           : 44px; height: 44px;
+  background      : rgba(255,255,255,.2);
+  border          : 2px solid rgba(255,255,255,.4);
+  border-radius   : 10px;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  font-weight     : 900;
+  font-size       : .85rem;
+  color           : white;
+  letter-spacing  : .04em;
+}
+.left-logo-text .t1 { font-size: .62rem; color: rgba(255,255,255,.65); }
+.left-logo-text .t2 { font-size: .88rem; font-weight: 700; color: white; }
+
+.left-headline {
+  position    : relative;
+  z-index     : 1;
+  margin-bottom: 20px;
+}
+.left-headline h1 {
+  font-size   : 2rem;
+  font-weight : 800;
+  color       : white;
+  line-height : 1.2;
+  margin-bottom: 10px;
+}
+.left-headline p {
+  font-size  : .82rem;
+  color      : rgba(255,255,255,.75);
+  line-height: 1.6;
+}
+
+.left-coverage {
+  display        : flex;
+  align-items    : center;
+  gap            : 0;
+  background     : rgba(255,255,255,.08);
+  border-radius  : 12px;
+  padding        : 14px 18px;
+  margin-top     : 24px;
+  position       : relative;
+  z-index        : 1;
+}
+.cov-item {
+  display     : flex;
+  align-items : center;
+  gap         : 10px;
+  flex        : 1;
+}
+.cov-icon {
+  width           : 36px;
+  height          : 36px;
+  border-radius   : 8px;
+  background      : rgba(255,255,255,.12);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  flex-shrink     : 0;
+}
+.cov-icon svg { width:16px; height:16px; stroke:white; }
+.cov-num   { font-size:.9rem; font-weight:800; color:white; }
+.cov-label { font-size:.65rem; color:rgba(255,255,255,.65); margin-top:1px; }
+.cov-divider {
+  width      : 1px;
+  height     : 36px;
+  background : rgba(255,255,255,.2);
+  margin     : 0 16px;
+  flex-shrink: 0;
+}
+
+.left-features {
+  margin-top : 24px;
+  position   : relative;
+  z-index    : 1;
+}
+.feat-title {
+  font-size     : .66rem;
+  font-weight   : 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color         : rgba(255,255,255,.5);
+  margin-bottom : 12px;
+}
+.feat-grid {
+  display              : grid;
+  grid-template-columns: 1fr 1fr;
+  gap                  : 10px;
+}
+.feat-item {
+  display    : flex;
+  gap        : 10px;
+  align-items: flex-start;
+  background : rgba(255,255,255,.06);
+  border-radius: 10px;
+  padding    : 12px;
+  transition : background .15s;
+}
+.feat-item:hover { background: rgba(255,255,255,.1); }
+.feat-icon {
+  width           : 30px;
+  height          : 30px;
+  border-radius   : 7px;
+  background      : rgba(255,255,255,.12);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  flex-shrink     : 0;
+}
+.feat-icon svg { width:14px; height:14px; stroke:white; }
+.feat-name { font-size:.72rem; font-weight:700; color:white; margin-bottom:3px; }
+.feat-desc { font-size:.63rem; color:rgba(255,255,255,.55); line-height:1.5; }
+
+.left-footer {
+  display    : flex;
+  align-items: center;
+  gap        : 8px;
+  margin-top : 24px;
+  font-size  : .65rem;
+  color      : rgba(255,255,255,.35);
+  position   : relative;
+  z-index    : 1;
+}
+.left-footer .dot { color: rgba(255,255,255,.2); }
+
+/* ── KANAN: FORM ── */
+.login-right {
+  flex            : 1;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  padding         : 40px 32px;
+  background      : var(--ink-900);
+}
+
+.login-form-wrap {
+  width     : 100%;
+  max-width : 360px;
+  animation : fadeUp .4s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-header {
+  margin-bottom: 32px;
+}
+.form-header h2 {
+  font-size   : 1.5rem;
+  font-weight : 800;
+  color       : white;
+  line-height : 1.2;
+  margin-bottom: 6px;
+}
+.form-header p {
+  font-size : .78rem;
+  color     : var(--ink-300);
+}
+
+/* Error */
+.error-msg {
+  display       : none;
+  background    : rgba(220,38,38,.15);
+  border        : 1px solid rgba(220,38,38,.3);
+  border-radius : 8px;
+  padding       : 10px 14px;
+  font-size     : .76rem;
+  color         : #fca5a5;
+  margin-bottom : 18px;
+  align-items   : center;
+  gap           : 8px;
+}
+.error-msg.show { display: flex; }
+.error-msg svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* Form elements */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display      : block;
+  font-size    : .76rem;
+  font-weight  : 600;
+  color        : rgba(255,255,255,.6);
+  margin-bottom: 8px;
+}
+.input-wrap { position: relative; }
+.input-icon {
+  position      : absolute;
+  left          : 14px; top: 50%;
+  transform     : translateY(-50%);
+  color         : var(--ink-300);
+  display       : flex;
+  pointer-events: none;
+}
+.input-icon svg { width: 16px; height: 16px; }
+
+.form-input {
+  width         : 100%;
+  background    : var(--ink-800);
+  border        : 1.5px solid var(--ink-600);
+  border-radius : 9px;
+  padding       : 12px 14px 12px 42px;
+  color         : white;
+  font-size     : .9rem;
+  font-family   : var(--font-body);
+  transition    : border-color .2s, background .2s;
+  outline       : none;
+}
+.form-input::placeholder { color: rgba(255,255,255,.2); }
+.form-input:focus {
+  border-color : var(--nlr-500);
+  background   : rgba(255,255,255,.05);
+}
+
+.toggle-password {
+  position   : absolute;
+  right      : 14px; top: 50%;
+  transform  : translateY(-50%);
+  background : none;
+  border     : none;
+  color      : var(--ink-300);
+  cursor     : pointer;
+  display    : flex;
+}
+.toggle-password:hover { color: rgba(255,255,255,.6); }
+.toggle-password svg { width: 16px; height: 16px; }
+
+/* Tombol masuk */
+.btn-login {
+  width           : 100%;
+  padding         : 14px;
+  background      : var(--nlr-600);
+  border          : none;
+  border-radius   : 9px;
+  color           : white;
+  font-size       : .95rem;
+  font-weight     : 700;
+  font-family     : var(--font-body);
+  cursor          : pointer;
+  transition      : background .15s, transform .1s, box-shadow .15s;
+  box-shadow      : 0 4px 16px rgba(212,80,10,.4);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  gap             : 8px;
+  margin-top      : 8px;
+}
+.btn-login:hover  { background: var(--nlr-700); box-shadow: 0 6px 20px rgba(212,80,10,.5); }
+.btn-login:active { transform: scale(.98); }
+.btn-login.loading { opacity: .6; pointer-events: none; }
+.btn-login svg { width: 17px; height: 17px; }
+
+.spinner {
+  width         : 17px; height: 17px;
+  border        : 2px solid rgba(255,255,255,.3);
+  border-top    : 2px solid white;
+  border-radius : 50%;
+  animation     : spin .7s linear infinite;
+  display       : none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.login-footer {
+  margin-top : 28px;
+  font-size  : .68rem;
+  color      : rgba(255,255,255,.2);
+  text-align : center;
+}
+
+/* ── RESPONSIVE: mobile single column ── */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .login-left {
+    flex      : none;
+    padding   : 36px 28px;
+    min-height: auto;
+  }
+  .left-headline h1 { font-size: 1.5rem; }
+  .feat-grid { grid-template-columns: 1fr; }
+  .left-coverage { flex-direction: column; gap: 12px; }
+  .cov-divider { width: 100%; height: 1px; margin: 0; }
+  .login-right { padding: 32px 24px; }
+}

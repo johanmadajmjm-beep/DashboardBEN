@@ -1,0 +1,376 @@
+/* Font Inter di-import sekali saja lewat components.css (selalu dimuat
+   bareng main.css di semua halaman) — duplikat di sini dihapus karena
+   menambah satu request render-blocking yang memperparah flash putih
+   saat pindah halaman. */
+
+/* ============================================================
+   DESIGN TOKENS — NLR Indonesia Brand System
+   Terinspirasi identitas visual NLR: oranye hangat, putih
+   bersih, charcoal gelap. Profesional tapi manusiawi.
+   ============================================================ */
+:root {
+  /* ── NLR ORANGE (brand utama) ── */
+  --nlr-900    : #7a2800;
+  --nlr-800    : #9e3500;
+  --nlr-700    : #c44200;
+  --nlr-600    : #d4500a;   /* ← warna logo NLR */
+  --nlr-500    : #e05a1a;
+  --nlr-400    : #f07030;
+  --nlr-300    : #f89060;
+  --nlr-200    : #fcc0a0;
+  --nlr-100    : #fde8d8;
+  --nlr-50     : #fff5ef;
+
+  /* ── CHARCOAL (sidebar, teks gelap) ── */
+  --ink-950    : #0e1117;
+  --ink-900    : #141820;
+  --ink-800    : #1c2330;
+  --ink-700    : #252d3d;
+  --ink-600    : #2e3a4e;
+  --ink-500    : #3d4e65;
+  --ink-400    : #5a6e88;
+  --ink-300    : #8a9ab0;
+  --ink-200    : #b8c4d0;
+  --ink-100    : #e2e8f0;
+
+  /* ── SURFACE ── */
+  --surface    : #eef0f6;
+  --surface-2  : #e5e8f0;
+  --white      : #ffffff;
+  --card-bg    : #ffffff;
+
+  /* ── STATUS ── */
+  --green      : #059669;
+  --green-bg   : #d1fae5;
+  --amber      : #d97706;
+  --amber-bg   : #fef3c7;
+  --red        : #dc2626;
+  --red-bg     : #fee2e2;
+  --blue       : #2563eb;
+  --blue-bg    : #dbeafe;
+  --purple     : #7c3aed;
+  --purple-bg  : #ede9fe;
+
+  /* ── OUTCOME COLORS ── */
+  --o1-color   : #2563eb;
+  --o2-color   : #0891b2;
+  --o3-color   : #d97706;
+  --o4-color   : #7c3aed;
+  --o5-color   : #059669;
+  --o6-color   : #dc2626;
+  --o7-color   : #0284c7;
+
+  /* ── TYPOGRAPHY ── */
+  --font-body  : 'Inter', sans-serif;
+  --font-mono  : 'JetBrains Mono', monospace;
+
+  /* ── LAYOUT ── */
+  --sidebar-w  : 240px;
+  --header-h   : 54px;
+
+  /* ── RADIUS ── */
+  --radius-sm  : 8px;
+  --radius-md  : 12px;
+  --radius-lg  : 18px;
+
+  /* ── SHADOW ── */
+  --shadow-sm  : 0 1px 4px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+  --shadow-md  : 0 4px 16px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.04);
+  --shadow-lg  : 0 12px 40px rgba(15,23,42,.12), 0 4px 12px rgba(15,23,42,.06);
+  --shadow-nlr : 0 4px 20px rgba(212,80,10,.22);
+  --shadow-card: 0 2px 8px rgba(15,23,42,.07), 0 0 0 1px rgba(15,23,42,.04);
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; scroll-behavior: smooth; }
+
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font-body); }
+input, select, textarea { font-family: var(--font-body); }
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width          : var(--sidebar-w);
+  background     : var(--ink-900);
+  display        : flex;
+  flex-direction : column;
+  position       : fixed;
+  top: 0; left: 0;
+  height         : 100vh;
+  z-index        : 200;
+  overflow-y     : auto;
+  overflow-x     : hidden;
+  border-right   : 1px solid rgba(255,255,255,.04);
+}
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 3px; }
+
+/* Brand */
+.sidebar-brand {
+  padding       : 20px 18px 16px;
+  border-bottom : 1px solid rgba(255,255,255,.06);
+  flex-shrink   : 0;
+}
+.brand-nlr {
+  display       : flex;
+  align-items   : center;
+  gap           : 10px;
+  margin-bottom : 12px;
+}
+.brand-nlr-badge {
+  width           : 36px; height: 36px;
+  background      : linear-gradient(135deg, var(--nlr-600), var(--nlr-500));
+  border-radius   : 9px;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  font-weight     : 900;
+  font-size       : .8rem;
+  color           : white;
+  letter-spacing  : .04em;
+  flex-shrink     : 0;
+  box-shadow      : var(--shadow-nlr);
+}
+.brand-nlr-text .t1 { font-size: .62rem; color: var(--ink-300); line-height: 1.2; }
+.brand-nlr-text .t2 { font-size: .82rem; font-weight: 700; color: rgba(255,255,255,.92); }
+
+/* Garis oranye tipis di bawah nama brand */
+.brand-app-name {
+  font-size      : .68rem;
+  font-weight    : 800;
+  letter-spacing : .09em;
+  text-transform : uppercase;
+  color          : var(--nlr-400);
+}
+.brand-app-sub {
+  font-size  : .62rem;
+  color      : var(--ink-300);
+  margin-top : 1px;
+}
+
+/* User */
+.sidebar-user {
+  display       : flex;
+  align-items   : center;
+  gap           : 9px;
+  padding       : 11px 18px;
+  border-bottom : 1px solid rgba(255,255,255,.06);
+  flex-shrink   : 0;
+}
+.user-av {
+  width           : 30px; height: 30px;
+  border-radius   : 50%;
+  background      : linear-gradient(135deg, var(--nlr-600), var(--nlr-400));
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  font-size       : .75rem;
+  font-weight     : 700;
+  color           : white;
+  flex-shrink     : 0;
+}
+.user-info .u-name { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,.88); }
+.user-info .u-role { font-size: .62rem; color: var(--ink-300); }
+
+/* SCN Switcher */
+.scn-switcher {
+  margin     : 10px 18px;
+  width      : calc(100% - 36px);
+  background : rgba(255,255,255,.06);
+  border     : 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius-sm);
+  color      : rgba(255,255,255,.8);
+  padding    : 6px 10px;
+  font-size  : .7rem;
+  font-family: var(--font-body);
+  transition : border-color .15s;
+}
+.scn-switcher:focus { border-color: var(--nlr-500); outline: none; }
+.scn-switcher option { background: var(--ink-800); }
+
+/* Nav */
+.sidebar-nav { flex: 1; padding: 8px 0; }
+
+.nav-group { margin-bottom: 1px; }
+
+.nav-group-header {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  padding         : 9px 18px;
+  cursor          : pointer;
+  user-select     : none;
+  transition      : background .12s;
+  border-radius   : 0;
+}
+.nav-group-header:hover { background: rgba(255,255,255,.04); }
+.nav-group-header.open  { background: rgba(255,255,255,.03); }
+
+.nav-group-label {
+  display     : flex;
+  align-items : center;
+  gap         : 9px;
+  font-size   : .74rem;
+  font-weight : 700;
+  color       : rgba(255,255,255,.6);
+}
+.nav-group-label svg { width: 15px; height: 15px; opacity: .65; flex-shrink: 0; }
+.nav-group-header.open .nav-group-label { color: rgba(255,255,255,.9); }
+.nav-group-header.open .nav-group-label svg { opacity: 1; }
+
+.nav-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.nav-chevron {
+  width: 13px; height: 13px;
+  color: rgba(255,255,255,.25);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.nav-group-header.open .nav-chevron { transform: rotate(90deg); color: rgba(255,255,255,.5); }
+
+.nav-sub {
+  overflow   : hidden;
+  max-height : 0;
+  transition : max-height .25s ease;
+}
+.nav-sub.open { max-height: 400px; }
+
+.nav-sub-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 8px;
+  padding      : 7px 18px 7px 40px;
+  font-size    : .72rem;
+  font-weight  : 500;
+  color        : rgba(255,255,255,.4);
+  cursor       : pointer;
+  transition   : background .12s, color .12s;
+  border-left  : 2px solid transparent;
+}
+.nav-sub-item:hover { color: rgba(255,255,255,.75); background: rgba(255,255,255,.04); }
+.nav-sub-item.active {
+  color        : white;
+  background   : rgba(212,80,10,.18);
+  border-left  : 2px solid var(--nlr-500);
+  padding-left : 38px;
+  font-weight  : 600;
+}
+.nav-sub-item svg { width: 13px; height: 13px; flex-shrink: 0; opacity: .55; }
+.nav-sub-item.active svg { opacity: 1; }
+
+/* Logout */
+.sidebar-footer {
+  padding      : 14px 18px;
+  border-top   : 1px solid rgba(255,255,255,.06);
+  flex-shrink  : 0;
+}
+.btn-logout {
+  display       : flex;
+  align-items   : center;
+  gap           : 8px;
+  width         : 100%;
+  padding       : 8px 12px;
+  background    : rgba(220,38,38,.1);
+  border        : 1px solid rgba(220,38,38,.18);
+  border-radius : var(--radius-sm);
+  color         : #fca5a5;
+  font-size     : .71rem;
+  font-weight   : 600;
+  transition    : background .15s;
+}
+.btn-logout:hover { background: rgba(220,38,38,.22); }
+.btn-logout svg { width: 13px; height: 13px; }
+
+/* ── MAIN ── */
+
+/* Hamburger menu — hanya tampil di mobile */
+
+.topbar-menu-btn:hover { background: var(--surface); }
+.topbar-menu-btn svg   { width: 18px; height: 18px; }
+
+/* ============================================================
+   KOMPONEN
+   ============================================================ */
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* Badge */
+.badge {
+  display       : inline-flex;
+  align-items   : center;
+  gap           : 3px;
+  padding       : 2px 8px;
+  border-radius : 999px;
+  font-size     : .63rem;
+  font-weight   : 700;
+  white-space   : nowrap;
+}
+.badge-green  { background: var(--green-bg);  color: #15803d; }
+.badge-amber  { background: var(--amber-bg);  color: #92400e; }
+.badge-red    { background: var(--red-bg);    color: #991b1b; }
+.badge-blue   { background: var(--blue-bg);   color: #1e40af; }
+.badge-purple { background: var(--purple-bg); color: #5b21b6; }
+.badge-gray   { background: var(--ink-100);   color: var(--ink-500); }
+/* Badge NLR oranye */
+.badge-nlr    { background: var(--nlr-100);   color: var(--nlr-800); }
+.badge-teal   { background: #cffafe;          color: #0e7490; }
+
+/* Outcome tag */
+.outcome-tag {
+  display        : inline-block;
+  padding        : 2px 7px;
+  border-radius  : 4px;
+  font-size      : .58rem;
+  font-weight    : 800;
+  text-transform : uppercase;
+  letter-spacing : .05em;
+  color          : white;
+}
+
+/* Mono */
+.mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); transition: transform .3s; }
+  .sidebar.open { transform: translateX(0); }
+  
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .page { padding: 16px; }
+  
+}
+
+/* ============================================================
+   PAGE TRANSITION — Fade In/Out
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-content-wrap {
+  animation: fadeIn .25s ease forwards;
+}
+
+body.page-exit {
+  opacity   : 0;
+  transform : translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease;
+}
