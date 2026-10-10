@@ -9,7 +9,7 @@ const AUTH = (() => {
   // ── SUPABASE CONFIG ───────────────────────────────────────
   // GANTI dengan anon key kamu (bukan service_role!)
   const SUPABASE_URL  = 'https://wajimecqdeqjljcavzmk.supabase.co';
-  const SUPABASE_ANON = 'GANTI_DENGAN_ANON_KEY_KAMU';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhamltZWNxZGVxamxqY2F2em1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2MjQ0NTMsImV4cCI6MjEwNzIwMDQ1M30.GwG2R-2u1XmMxy8JHreGF_4UbSMCPhuEhGQ-ldzeE3I';
 
   // ── SCN LIST ──────────────────────────────────────────────
   const SCN_LIST = [
