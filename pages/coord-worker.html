@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id"><head><style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Coordinator — Kinerja Worker | MEL NLR</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<style>
+/* ── OUTER LAYOUT ── */
+.outer-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px);overflow:hidden}
+
+/* ── CHARTS ROW ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:12px 14px;background:#F8FAFC;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.chart-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;overflow:hidden}
+.chart-card-head{padding:9px 12px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
+.chart-card-body{padding:8px 12px}
+.ch{position:relative;height:170px}
+
+/* ── TABEL + DETAIL ROW ── */
+.cw-wrap{display:flex;gap:0;flex:1;overflow:hidden}
+
+/* ── TABEL PANEL ── */
+.ld-list{flex:1;min-width:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:flex .2s}
+.cw-wrap.detail-open .ld-list{flex:0 0 55%;min-width:0}
+
+/* ── DETAIL PANEL ── */
+.ld-detail{width:0;overflow:hidden;background:#F8FAFC;display:none;overflow-y:auto;transition:width .2s}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+.cw-wrap.detail-open .ld-detail{display:block;width:45%;flex-shrink:0}
+
+/* ── TABEL KINERJA ── */
+.kinerja-tbl{width:100%;border-collapse:collapse;font-size:.75rem}
+.kinerja-tbl thead th{
+  background:#F9FAFB;color:#9CA3AF;font-size:.62rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;
+  padding:9px 12px;text-align:left;border-bottom:1px solid #E5E7EB;
+  position:sticky;top:0;z-index:1;white-space:nowrap
+}
+.kinerja-tbl thead th.center{text-align:center}
+.kinerja-tbl tbody tr{border-bottom:1px solid #F9FAFB;transition:background .1s}
+.kinerja-tbl tbody tr:last-child{border-bottom:none}
+.kinerja-tbl tbody tr:hover{background:#FFF7ED}
+.kinerja-tbl tbody tr.active{background:#FFF7ED;border-left:3px solid #F97316}
+.kinerja-tbl tbody td{padding:9px 12px;vertical-align:middle}
+.kinerja-tbl tbody td.center{text-align:center}
+
+/* angka anak — clickable */
+.anak-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:26px;padding:0 8px;
+  background:#FFF7ED;border:1px solid #FED7AA;border-radius:6px;
+  font-size:.8rem;font-weight:800;color:#EA580C;
+  cursor:pointer;transition:.12s;
+}
+.anak-btn:hover{background:#FFEDD5;border-color:#F97316;transform:scale(1.05)}
+
+/* form badge */
+.form-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:28px;height:22px;padding:0 6px;
+  border-radius:5px;font-size:.72rem;font-weight:700;
+}
+
+/* ── DETAIL PANEL INNER ── */
+.det-inner{padding:16px}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+.det-name{font-size:1.05rem;font-weight:800;margin-bottom:8px}
+.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:#fff;border:1px solid #E5E7EB;border-radius:9px;padding:12px;text-align:center}
+.stat-val{font-size:1.4rem;font-weight:800;line-height:1}
+.stat-lbl{font-size:.6rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:9px 13px;border-bottom:1px solid #F3F4F6;font-size:.72rem;font-weight:700;color:#1F2937}
+.det-section-body{padding:10px 13px}
+.det-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #F9FAFB;font-size:.76rem}
+.det-row:last-child{border-bottom:none}
+.det-row-label{color:#6B7280;font-weight:500}
+.det-row-val{font-weight:700;color:#1F2937}
+.mini-tbl{width:100%;border-collapse:collapse;font-size:.72rem}
+.mini-tbl th{padding:7px 10px;text-align:left;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9CA3AF;border-bottom:1px solid #E5E7EB;background:#F9FAFB}
+.mini-tbl td{padding:7px 10px;border-bottom:1px solid #F9FAFB;color:#1F2937;vertical-align:middle}
+.mini-tbl tr:last-child td{border-bottom:none}
+.mini-tbl tr:hover td{background:#FFF7ED}
+
+.cw-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px;display:none}
+.cw-empty svg{width:44px;height:44px;opacity:.25}
+.cw-empty p{font-size:.8rem;text-align:center}
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Kinerja Worker</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="outer-wrap">
+
+  <!-- ① CHARTS ROW -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-card-head">Jumlah Anak per CBR Worker</div>
+      <div class="chart-card-body"><div class="ch"><canvas id="c-worker-bar"></canvas></div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">Jumlah Anak per Desa (Top 15)</div>
+      <div class="chart-card-body"><div class="ch"><canvas id="c-desa-bar"></canvas></div></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-head">Ragam Disabilitas per CBR Worker</div>
+      <div class="chart-card-body"><div class="ch"><canvas id="c-ragam-bar"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ② TABEL + DETAIL -->
+  <div class="cw-wrap" id="cw-wrap">
+
+    <!-- TABEL KINERJA -->
+    <div class="ld-list">
+      <div style="padding:10px 14px;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Kinerja Per CBR Worker</span>
+        <span id="ld-count" style="font-size:.67rem;color:#9CA3AF">—</span>
+      </div>
+      <div style="overflow:auto;flex:1">
+        <table class="kinerja-tbl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nama Worker</th>
+              <th class="center">Jumlah Anak</th>
+              <th class="center">Data Awal</th>
+              <th class="center">Observasi</th>
+              <th class="center">Perencanaan</th>
+              <th class="center">Buku Harian</th>
+              <th class="center">Eval. Menengah</th>
+              <th class="center">Eval. Akhir</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-kinerja-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DETAIL PANEL -->
+    <div class="ld-detail" id="ld-detail"></div>
+
+  </div>
+</div>
+</div></div>
+
+<script>
+const RC={'Fisik':'#dc2626','Intelektual':'#2563eb','Sensorik (penglihatan)':'#16a34a','Sensorik (pendengaran dan bicara)':'#d97706','Ganda':'#7c3aed','Lainnya':'#6b7280'};
+const LC={'Parah (dukungan penuh)':'#dc2626','Sedang (dukungan reguler)':'#d97706','Rendah (sedikit dukungan)':'#16a34a'};
+const PAL=['#F97316','#2563eb','#16a34a','#d97706','#7c3aed','#dc2626','#0891b2','#84cc16'];
+
+let CHARTS={}, ALL_ANAK=[], ALL_OBS=[], ALL_WORKERS=[];
+let ALL_RENCANA=[], ALL_DIARY=[], ALL_EVAL_MEN=[], ALL_EVAL_AKH=[];
+
+function sc(v){return v<=3?'#dc2626':v<=6?'#d97706':'#16a34a';}
+function avg(arr){const v=arr.filter(x=>x!=null&&!isNaN(x));return v.length?(v.reduce((a,b)=>a+b,0)/v.length):0;}
+
+function mk(id,type,data,opts){
+  if(CHARTS[id]){CHARTS[id].destroy();delete CHARTS[id];}
+  const el=document.getElementById(id);if(!el)return;
+  CHARTS[id]=new Chart(el,{type,data,options:opts});
+}
+function drawLabels(chart){
+  const ctx=chart.ctx;
+  chart.data.datasets.forEach((ds,i)=>{
+    const meta=chart.getDatasetMeta(i);
+    meta.data.forEach((bar,idx)=>{
+      const v=ds.data[idx];if(!v&&v!==0)return;
+      const isH=chart.config.options.indexAxis==='y';
+      ctx.save();ctx.fillStyle='#374151';ctx.font='bold 9px system-ui';
+      if(isH){ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(v,bar.x+3,bar.y);}
+      else{ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillText(v,bar.x,bar.y-2);}
+      ctx.restore();
+    });
+  });
+}
+
+const BASE_OPTS={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+  scales:{
+    x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}}},
+    y:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true}
+  },
+  animation:{onComplete:function(){drawLabels(this);}}
+};
+
+// ── helper: hitung anak unik per worker di suatu form array
+// field nama anak: na | nama_anak | nama; field worker: cbr_worker | cb | cbr
+function countAnakByWorker(formArr, workerNama){
+  if(!formArr||!formArr.length) return 0;
+  const namaSet = new Set(
+    ALL_ANAK.filter(a=>a.cbr===workerNama).map(a=>(a.nama||'').toLowerCase())
+  );
+  const matched = new Set();
+  formArr.forEach(r=>{
+    const rWorker = (r.cbr_worker||r.cb||r.cbr||'').toLowerCase();
+    const rNama   = (r.na||r.nama_anak||r.nama||'').toLowerCase();
+    // match by worker name OR by child name in worker's list
+    if(rWorker === workerNama.toLowerCase() || namaSet.has(rNama)){
+      if(rNama) matched.add(rNama);
+    }
+  });
+  return matched.size;
+}
+
+function renderPage(d, scnId){
+  if(!d||!d.anak) return;
+  ALL_ANAK    = d.anak;
+  ALL_OBS     = d.obs||[];
+  ALL_RENCANA = d.perencanaan||[];
+  ALL_DIARY   = d.diary||[];
+  ALL_EVAL_MEN= d.evalMenengah||[];
+  ALL_EVAL_AKH= d.evalAkhir||[];
+
+  const workerNames    = (d.workers||[]).map(w=>w.nama).filter(Boolean).sort();
+  const workerFromAnak = new Set(ALL_ANAK.map(a=>a.cbr).filter(Boolean));
+  ALL_WORKERS = [...new Set([...workerFromAnak,...workerNames])].sort();
+
+  // ── Chart 1: Anak per Worker
+  mk('c-worker-bar','bar',
+    {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),
+     datasets:[{data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w).length),
+       backgroundColor:PAL,borderRadius:4,borderSkipped:false}]},
+    {...BASE_OPTS,layout:{padding:{top:16}}}
+  );
+
+  // ── Chart 2: Anak per Desa top 15
+  const desaCnt={};
+  ALL_ANAK.forEach(a=>{if(a.desa&&a.desa!=='—')desaCnt[a.desa]=(desaCnt[a.desa]||0)+1;});
+  const top15=Object.entries(desaCnt).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  mk('c-desa-bar','bar',
+    {labels:top15.map(x=>x[0]),datasets:[{data:top15.map(x=>x[1]),backgroundColor:PAL.concat(PAL),borderRadius:4,borderSkipped:false}]},
+    {responsive:true,maintainAspectRatio:false,indexAxis:'y',layout:{padding:{right:24}},
+     plugins:{legend:{display:false},tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+     scales:{x:{grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true},y:{grid:{display:false},ticks:{color:'#9ca3af',font:{size:9}}}},
+     animation:{onComplete:function(){drawLabels(this);}}}
+  );
+
+  // ── Chart 3: Ragam per Worker (stacked)
+  const ragams=[...new Set(ALL_ANAK.map(a=>a.ragam).filter(Boolean))].sort();
+  mk('c-ragam-bar','bar',
+    {labels:ALL_WORKERS.map(w=>w.split(' ').slice(-1)[0]),
+     datasets:ragams.map((rg,i)=>({
+       label:rg.split(' ')[0],
+       data:ALL_WORKERS.map(w=>ALL_ANAK.filter(a=>a.cbr===w&&a.ragam===rg).length),
+       backgroundColor:(Object.values(RC)[i]||PAL[i%PAL.length])+'CC',
+       borderRadius:0,
+     }))},
+    {responsive:true,maintainAspectRatio:false,
+     plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:9,font:{size:9},color:'#6B7280',padding:6}},
+       tooltip:{backgroundColor:'#1f2937',titleColor:'#f9fafb',bodyColor:'#9ca3af'}},
+     scales:{x:{stacked:true,grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}}},
+       y:{stacked:true,grid:{color:'#f3f4f6'},ticks:{color:'#9ca3af',font:{size:9}},beginAtZero:true}},
+     animation:{}}
+  );
+
+  // ── Render tabel kinerja
+  renderTabel();
+}
+
+function renderTabel(){
+  document.getElementById('ld-count').textContent = ALL_WORKERS.length + ' CBR Worker';
+
+  const obsNamaByWorker = {};
+  ALL_WORKERS.forEach(w=>{
+    const namaSet = new Set(ALL_ANAK.filter(a=>a.cbr===w).map(a=>(a.nama||'').toLowerCase()));
+    // hitung obs yang nama anaknya ada di list worker ini
+    const matched = new Set();
+    ALL_OBS.forEach(o=>{
+      const n = (o.na||'').toLowerCase();
+      if(namaSet.has(n)) matched.add(n);
+    });
+    obsNamaByWorker[w] = matched.size;
+  });
+
+  document.getElementById('tbl-kinerja-body').innerHTML = ALL_WORKERS.map((w,i)=>{
+    const myAnak   = ALL_ANAK.filter(a=>a.cbr===w);
+    const jmlAnak  = myAnak.length;
+    const jmlAwal  = jmlAnak; // Data Awal = sumber master
+    const jmlObs   = obsNamaByWorker[w]||0;
+    const jmlPlan  = countAnakByWorker(ALL_RENCANA,  w);
+    const jmlDiary = countAnakByWorker(ALL_DIARY,    w);
+    const jmlEvalM = countAnakByWorker(ALL_EVAL_MEN, w);
+    const jmlEvalA = countAnakByWorker(ALL_EVAL_AKH, w);
+    const col      = PAL[i%PAL.length];
+
+    function badge(n, total){
+      const pct  = total>0?Math.round(n/total*100):0;
+      const bg   = n===total?'#dcfce7':n===0?'#fee2e2':'#fff7ed';
+      const c    = n===total?'#15803d':n===0?'#dc2626':'#d97706';
+      return `<span class="form-badge" style="background:${bg};color:${c}">${n}</span>`;
+    }
+
+    return `<tr id="tr-worker-${i}">
+      <td style="color:#9CA3AF;font-size:.65rem">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0"></div>
+          <span style="font-weight:700;font-size:.78rem;color:#1F2937">${w}</span>
+        </div>
+      </td>
+      <td class="center">
+        <span class="anak-btn" onclick="showDetail(${i},'${w.replace(/'/g,"\\'")}')">
+          ${jmlAnak}
+        </span>
+      </td>
+      <td class="center">${badge(jmlAwal,  jmlAnak)}</td>
+      <td class="center">${badge(jmlObs,   jmlAnak)}</td>
+      <td class="center">${badge(jmlPlan,  jmlAnak)}</td>
+      <td class="center">${badge(jmlDiary, jmlAnak)}</td>
+      <td class="center">${badge(jmlEvalM, jmlAnak)}</td>
+      <td class="center">${badge(jmlEvalA, jmlAnak)}</td>
+    </tr>`;
+  }).join('');
+}
+
+let _activeIdx = null;
+function showDetail(idx, wNama){
+  // Highlight baris aktif
+  if(_activeIdx !== null){
+    const prev = document.getElementById('tr-worker-'+_activeIdx);
+    if(prev) prev.classList.remove('active');
+  }
+  _activeIdx = idx;
+  const tr = document.getElementById('tr-worker-'+idx);
+  if(tr) tr.classList.add('active');
+
+  document.getElementById('cw-wrap').classList.add('detail-open');
+
+  const g    = ALL_ANAK.filter(a=>a.cbr===wNama);
+  const spArr= g.map(a=>a.sp).filter(v=>v!=null);
+  const saArr= g.map(a=>a.sa).filter(v=>v!=null);
+  const avSP = spArr.length?avg(spArr).toFixed(1):null;
+  const avSA = saArr.length?avg(saArr).toFixed(1):null;
+  const kritis  = g.filter(a=>a.sp!=null&&a.sp<=3).length;
+  const parah   = g.filter(a=>(a.level||'').includes('Parah')).length;
+  const sedang  = g.filter(a=>(a.level||'').includes('Sedang')).length;
+  const rendah  = g.filter(a=>(a.level||'').includes('Rendah')).length;
+  const epilepsi= g.filter(a=>a.ep).length;
+  const terapi  = g.filter(a=>a.tr).length;
+  const lk      = g.filter(a=>a.gender==='L').length;
+  const pr      = g.filter(a=>a.gender==='P').length;
+  const col     = PAL[idx%PAL.length];
+
+  const ragamRows = Object.entries(
+    g.reduce((acc,a)=>{acc[a.ragam||'Lainnya']=(acc[a.ragam||'Lainnya']||0)+1;return acc;},{})
+  ).sort((a,b)=>b[1]-a[1]);
+
+  const anakRows = g.map((a,i)=>{
+    const spCol = a.sp!=null?sc(a.sp):'#9ca3af';
+    const saCol = a.sa!=null?sc(a.sa):'#9ca3af';
+    return `<tr>
+      <td style="color:#9CA3AF;font-size:.65rem">${i+1}</td>
+      <td style="font-weight:600;font-size:.74rem">${a.nama||'—'}</td>
+      <td style="font-size:.67rem;color:${RC[a.ragam]||'#888'};font-weight:700">${(a.ragam||'—').split(' ')[0]}</td>
+      <td style="font-size:.67rem;color:${LC[a.level]||'#9ca3af'}">${(a.level||'—').split('(')[0].trim()}</td>
+      <td style="font-size:.67rem">${a.desa||'—'}</td>
+      <td style="font-weight:700;color:${spCol};font-size:.72rem;text-align:center">${a.sp!=null?a.sp:'—'}</td>
+      <td style="font-weight:700;color:${saCol};font-size:.72rem;text-align:center">${a.sa!=null?a.sa:'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ld-detail').innerHTML=`
+    <div class="det-inner">
+      <button class="det-back" onclick="clearDetail()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Tutup
+      </button>
+      <div class="det-name" style="color:${col}">${wNama}</div>
+      <div class="det-meta">
+        <span class="det-chip">👶 ${g.length} anak dampingan</span>
+        <span class="det-chip">👦 ${lk} LK · 👧 ${pr} PR</span>
+        ${kritis?`<span class="det-chip" style="background:#FEE2E2;color:#DC2626">⚠ ${kritis} kritis</span>`:''}
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-val" style="color:${avSP?sc(parseFloat(avSP)):'#9CA3AF'}">${avSP||'—'}</div><div class="stat-lbl">Skor Anak Avg</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:${avSA?sc(parseFloat(avSA)):'#9CA3AF'}">${avSA||'—'}</div><div class="stat-lbl">Skor Pengasuh Avg</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:${kritis>0?'#dc2626':'#16a34a'}">${kritis}</div><div class="stat-lbl">Kritis ≤3</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#dc2626">${parah}</div><div class="stat-lbl">Level Parah</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#d97706">${epilepsi}</div><div class="stat-lbl">Epilepsi</div></div>
+        <div class="stat-card"><div class="stat-val" style="color:#16a34a">${terapi}</div><div class="stat-lbl">Pernah Terapi</div></div>
+      </div>
+      <div class="det-section">
+        <div class="det-section-head">Level Dukungan</div>
+        <div class="det-section-body">
+          <div class="det-row"><span class="det-row-label">Parah (dukungan penuh)</span><span class="det-row-val" style="color:#dc2626">${parah}</span></div>
+          <div class="det-row"><span class="det-row-label">Sedang (dukungan reguler)</span><span class="det-row-val" style="color:#d97706">${sedang}</span></div>
+          <div class="det-row"><span class="det-row-label">Rendah (sedikit dukungan)</span><span class="det-row-val" style="color:#16a34a">${rendah}</span></div>
+        </div>
+      </div>
+      <div class="det-section">
+        <div class="det-section-head">Ragam Disabilitas</div>
+        <div class="det-section-body">
+          ${ragamRows.map(([rg,ct])=>`
+            <div class="det-row">
+              <span class="det-row-label" style="color:${RC[rg]||'#6b7280'}">${rg}</span>
+              <span class="det-row-val">${ct} <span style="color:#9CA3AF;font-size:.65rem;font-weight:400">anak</span></span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="det-section">
+        <div class="det-section-head">Daftar Anak Dampingan (${g.length})</div>
+        <div style="overflow-x:auto">
+          <table class="mini-tbl">
+            <thead><tr>
+              <th>#</th><th>Nama Anak</th><th>Ragam</th><th>Level</th><th>Desa</th>
+              <th style="text-align:center">Skor A</th><th style="text-align:center">Skor P</th>
+            </tr></thead>
+            <tbody>${anakRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+}
+
+function clearDetail(){
+  document.getElementById('cw-wrap').classList.remove('detail-open');
+  document.getElementById('ld-detail').innerHTML='';
+  if(_activeIdx!==null){
+    const tr=document.getElementById('tr-worker-'+_activeIdx);
+    if(tr)tr.classList.remove('active');
+    _activeIdx=null;
+  }
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('coord','c-worker');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script></body></html>

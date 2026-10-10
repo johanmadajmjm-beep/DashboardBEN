@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id"><head>
+  <style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Coordinator — Beneficiary | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<style>
+.page-wrap{display:flex;flex-direction:column;height:calc(100vh - 60px);overflow:hidden}
+.page-header{padding:14px 20px;border-bottom:1px solid #E5E7EB;background:#fff;flex-shrink:0}
+.page-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.page-title{font-size:.9rem;font-weight:800;color:#1F2937}
+.kpi-bar{display:flex;gap:8px;flex-wrap:wrap}
+.kpi-card{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:6px 14px;text-align:center;min-width:70px}
+.kpi-val{font-size:1.1rem;font-weight:800;color:#F97316;font-family:'JetBrains Mono',monospace;line-height:1}
+.kpi-lbl{font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ld-search{padding:6px 10px;border:1px solid #E5E7EB;border-radius:7px;font-size:.74rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s;min-width:180px}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
+.ld-select{padding:6px 8px;border:1px solid #E5E7EB;border-radius:7px;font-size:.72rem;font-family:inherit;background:#F9FAFB;outline:none;color:#374151}
+.ld-select:focus{border-color:#F97316}
+.count-label{font-size:.68rem;color:#9CA3AF;margin-left:4px}
+/* TABLE */
+.table-wrap{flex:1;overflow:auto}
+.table-wrap::-webkit-scrollbar{width:5px;height:5px}
+.table-wrap::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:.76rem}
+thead{position:sticky;top:0;z-index:10}
+thead tr{background:#F9FAFB}
+th{padding:10px 14px;text-align:left;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;border-bottom:2px solid #E5E7EB;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:#F97316}
+th .sort-icon{margin-left:4px;opacity:.4;font-size:.6rem}
+th.sorted .sort-icon{opacity:1;color:#F97316}
+td{padding:9px 14px;border-bottom:1px solid #F3F4F6;color:#1F2937;vertical-align:middle}
+tr:hover td{background:#FFF7ED}
+.jabatan-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.63rem;font-weight:700;letter-spacing:.03em}
+.badge-anak{background:#FFF7ED;color:#EA6C0A}
+.badge-worker{background:#EFF6FF;color:#1D4ED8}
+.badge-lainnya{background:#F3F4F6;color:#6B7280}
+.gender-chip{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:.65rem;font-weight:700}
+.gender-l{background:#DBEAFE;color:#1D4ED8}
+.gender-p{background:#FCE7F3;color:#BE185D}
+.no-data{text-align:center;padding:48px;color:#9CA3AF;font-size:.8rem}
+/* empty state */
+.table-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:#9CA3AF;gap:8px}
+.table-empty svg{width:40px;height:40px;opacity:.25}
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;padding:14px;overflow:auto;flex:1}
+.benef-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:12px}
+.benef-card-name{font-size:.8rem;font-weight:700;color:#1F2937;margin-bottom:4px}
+.benef-card-sub{font-size:.67rem;color:#9CA3AF;margin-bottom:4px}
+.compact-list{flex:1;overflow:auto}
+.compact-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #F3F4F6;font-size:.72rem}
+.compact-item-name{font-weight:600;color:#1F2937;flex:1}
+.lst-wrap{flex:1;overflow:auto}
+.lst-item{display:flex;align-items:center;gap:8px;padding:5px 14px;border-bottom:1px solid #F3F4F6}
+.lst-item-name{font-size:.72rem;font-weight:600;color:#1F2937;flex:1}
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Coordinator <span class="sep">›</span><span class="current">Beneficiary</span></div>
+  </div>
+  <div class="topbar-right">
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+
+<div class="page-wrap">
+  <!-- HEADER + FILTER -->
+  <div class="page-header">
+    <div class="page-header-top">
+      <span class="page-title">Daftar Beneficiary</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Tabel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Kartu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="9" height="8" rx="1"/><rect x="13" y="3" width="9" height="8" rx="1"/><rect x="2" y="13" width="9" height="8" rx="1"/><rect x="13" y="13" width="9" height="8" rx="1"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Grid Kecil">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-lst" onclick="setView('lst')" title="List Row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="3" height="3"/><line x1="8" y1="6.5" x2="21" y2="6.5"/><rect x="3" y="11" width="3" height="3"/><line x1="8" y1="12.5" x2="21" y2="12.5"/><rect x="3" y="17" width="3" height="3"/><line x1="8" y1="18.5" x2="21" y2="18.5"/></svg>
+          </button>
+        </div>
+        <div class="kpi-bar" id="kpi-bar"></div>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama..."/>
+      <select class="ld-select" id="flt-jabatan">
+        <option value="">Semua Jabatan</option>
+        <option value="Anak">Anak Disabilitas</option>
+        <option value="CBR Worker">CBR Worker</option>
+      </select>
+      <select class="ld-select" id="flt-gender">
+        <option value="">Semua JK</option>
+        <option value="L">Laki-laki</option>
+        <option value="P">Perempuan</option>
+      </select>
+      <select class="ld-select" id="flt-provinsi"><option value="">Semua Provinsi</option></select>
+      <span class="count-label" id="ld-count">—</span>
+    </div>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div id="content-area" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+  <div class="table-wrap" id="view-xl">
+    <table id="benef-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('no')" id="th-no">#<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('nama')" id="th-nama">Nama Benef<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('jabatan')" id="th-jabatan">Jabatan Benef<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('provinsi')" id="th-provinsi">Provinsi<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('gender')" id="th-gender">Jenis Kelamin<span class="sort-icon">↕</span></th>
+          <th onclick="sortBy('usia')" id="th-usia">Umur<span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="6" class="no-data">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-grid" id="view-md" style="display:none"></div>
+  <div class="card-grid" id="view-sm" style="display:none;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))"></div>
+  <div class="lst-wrap" id="view-lst" style="display:none"></div>
+  </div>
+</div>
+</div></div>
+
+<script>
+let ALL_BENEF = [], ACTIVE_VIEW = 'xl';
+
+function setView(v) {
+  ACTIVE_VIEW = v;
+  ['xl','md','sm','lst'].forEach(x => {
+    document.getElementById('vm-'+x).classList.toggle('active', x===v);
+    document.getElementById('view-'+x).style.display = x===v ? (x==='xl'?'block':'flex') : 'none';
+    if(x==='md'||x==='sm') document.getElementById('view-'+x).style.display = x===v ? 'grid' : 'none';
+    if(x==='lst') document.getElementById('view-'+x).style.display = x===v ? 'block' : 'none';
+  });
+  renderTable();
+}
+
+let SORT_KEY = 'jabatan', SORT_ASC = true;
+
+
+  // Union unik nama anak dari semua 6 form
+  function countUnikBenef(d) {
+    const s = new Set();
+    (d.anak||[]).forEach(a=>{ const n=(a.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.obs||[]).forEach(r=>{ const n=(r.na||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.perencanaan||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.diary||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.evalMenengah||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    (d.evalAkhir||[]).forEach(r=>{ const n=(r.nama_anak||r.na||r.nama||'').toLowerCase().trim(); if(n&&n!=='—') s.add(n); });
+    return s.size;
+  }
+
+function renderPage(d, scnId) {
+  const anak = (d.anak || []).map(a => ({
+    nama    : a.nama || '—',
+    jabatan : 'Anak',
+    provinsi: a.provinsi || a.scn_id || '—',
+    gender  : a.gender || '—',
+    usia    : a.usia != null ? a.usia : null,
+    _cbr    : a.cbr || '',
+    _ragam  : a.ragam || '',
+  }));
+
+  const workers = (d.workers || []).map(w => ({
+    nama    : w.nama || '—',
+    jabatan : 'CBR Worker',
+    provinsi: w.scn || w.scn_id || d.meta?.scn || '—',
+    gender  : '—',
+    usia    : null,
+    _cbr    : '',
+    _ragam  : '',
+  }));
+
+  ALL_BENEF = [...anak, ...workers];
+
+  // KPI — total anak = union unik dari 6 form
+  const totalAnakUnik = countUnikBenef(d);
+  const totalWorker = workers.length;
+  const totalLK     = anak.filter(a => a.gender === 'L').length;
+  const totalPR     = anak.filter(a => a.gender === 'P').length;
+  document.getElementById('kpi-bar').innerHTML = [
+    { v: ALL_BENEF.length, l: 'Total Benef',  c: '#F97316' },
+    { v: totalAnakUnik,    l: 'Anak',          c: '#EA6C0A' },
+    { v: totalWorker,      l: 'CBR Worker',    c: '#1D4ED8' },
+    { v: totalLK,          l: 'Laki-laki',     c: '#2563EB' },
+    { v: totalPR,          l: 'Perempuan',     c: '#BE185D' },
+  ].map(k => `<div class="kpi-card"><div class="kpi-val" style="color:${k.c}">${k.v}</div><div class="kpi-lbl">${k.l}</div></div>`).join('');
+
+  // Provinsi filter
+  const provs = [...new Set(ALL_BENEF.map(b => b.provinsi).filter(p => p && p !== '—'))].sort();
+  const fP = document.getElementById('flt-provinsi');
+  provs.forEach(p => { const o = document.createElement('option'); o.value = o.textContent = p; fP.appendChild(o); });
+
+  // Events
+  ['flt-search','flt-jabatan','flt-gender','flt-provinsi'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener(id === 'flt-search' ? 'input' : 'change', renderTable);
+  });
+
+  renderTable();
+}
+
+function getFiltered() {
+  const q  = (document.getElementById('flt-search').value || '').toLowerCase();
+  const jb = document.getElementById('flt-jabatan').value;
+  const gd = document.getElementById('flt-gender').value;
+  const pv = document.getElementById('flt-provinsi').value;
+  return ALL_BENEF.filter(b =>
+    (!q  || b.nama.toLowerCase().includes(q)) &&
+    (!jb || b.jabatan === jb) &&
+    (!gd || b.gender === gd) &&
+    (!pv || b.provinsi === pv)
+  );
+}
+
+function sortBy(key) {
+  if (SORT_KEY === key) SORT_ASC = !SORT_ASC;
+  else { SORT_KEY = key; SORT_ASC = true; }
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sorted'));
+  const th = document.getElementById('th-' + key);
+  if (th) th.classList.add('sorted');
+  renderTable();
+}
+
+function renderTable() {
+  let list = getFiltered();
+  document.getElementById('ld-count').textContent = list.length + ' benef ditemukan';
+
+  // Sort
+  list.sort((a, b) => {
+    let va = a[SORT_KEY], vb = b[SORT_KEY];
+    if (SORT_KEY === 'no') { va = 0; vb = 0; } // no-op, use index
+    if (SORT_KEY === 'usia') {
+      va = va ?? -1; vb = vb ?? -1;
+      return SORT_ASC ? va - vb : vb - va;
+    }
+    va = String(va ?? '').toLowerCase();
+    vb = String(vb ?? '').toLowerCase();
+    return SORT_ASC ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  if (!list.length) {
+    document.getElementById('table-body').innerHTML =
+      `<tr><td colspan="6"><div class="table-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span>Tidak ada data ditemukan</span>
+      </div></td></tr>`;
+    return;
+  }
+
+  // Render card/list views
+  const cardHtmlMd = list.map(b => {
+    const jabBadge = b.jabatan === 'Anak' ? '<span class="jabatan-badge badge-anak" style="font-size:.6rem">Anak</span>' : '<span class="jabatan-badge badge-worker" style="font-size:.6rem">CBR Worker</span>';
+    return '<div class="benef-card"><div class="benef-card-name">' + b.nama + '</div><div class="benef-card-sub">' + (b.jabatan==='Anak'?b._ragam||'—':b.provinsi||'—') + '</div>' + jabBadge + '</div>';
+  }).join('');
+  const cardHtmlSm = list.map(b => '<div class="benef-card"><div class="benef-card-name" style="font-size:.72rem">' + b.nama + '</div><div class="benef-card-sub">' + b.jabatan + '</div></div>').join('');
+  const lstHtml = list.map((b,i) => {
+    const jabBadge = b.jabatan === 'Anak' ? '<span class="jabatan-badge badge-anak" style="font-size:.58rem;padding:1px 6px">Anak</span>' : '<span class="jabatan-badge badge-worker" style="font-size:.58rem;padding:1px 6px">Worker</span>';
+    return '<div class="lst-item"><span style="color:#9CA3AF;font-size:.65rem;width:24px">' + (i+1) + '</span><span class="lst-item-name">' + b.nama + '</span>' + jabBadge + '</div>';
+  }).join('');
+  document.getElementById('view-md').innerHTML = cardHtmlMd || '<div style="padding:40px;text-align:center;color:#9CA3AF">Tidak ada data</div>';
+  document.getElementById('view-sm').innerHTML = cardHtmlSm || '';
+  document.getElementById('view-lst').innerHTML = lstHtml || '';
+
+  document.getElementById('table-body').innerHTML = list.map((b, i) => {
+    const jabBadge = b.jabatan === 'Anak'
+      ? `<span class="jabatan-badge badge-anak">Anak Disabilitas</span>`
+      : b.jabatan === 'CBR Worker'
+      ? `<span class="jabatan-badge badge-worker">CBR Worker</span>`
+      : `<span class="jabatan-badge badge-lainnya">${b.jabatan}</span>`;
+
+    const genderChip = b.gender === 'L'
+      ? `<span class="gender-chip gender-l" title="Laki-laki">L</span>`
+      : b.gender === 'P'
+      ? `<span class="gender-chip gender-p" title="Perempuan">P</span>`
+      : `<span style="color:#D1D5DB;font-size:.72rem">—</span>`;
+
+    const usia = b.usia != null
+      ? `<span style="font-weight:600">${b.usia}</span> <span style="color:#9CA3AF;font-size:.68rem">th</span>`
+      : `<span style="color:#D1D5DB">—</span>`;
+
+    const provinsi = b.provinsi && b.provinsi !== '—'
+      ? b.provinsi
+      : `<span style="color:#D1D5DB">—</span>`;
+
+    return `<tr>
+      <td style="color:#9CA3AF;font-size:.68rem;font-weight:600;width:40px">${i + 1}</td>
+      <td style="font-weight:600">${b.nama}</td>
+      <td>${jabBadge}</td>
+      <td style="font-size:.74rem;color:#374151">${provinsi}</td>
+      <td>${genderChip}</td>
+      <td>${usia}</td>
+    </tr>`;
+  }).join('');
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION = AUTH.requireAuth('../index.html');
+if (SESSION) {
+  AUTH.applySession({ onScnSwitch: async function(scnId) { const d = await API.get(scnId); if (window.renderPage) renderPage(d, scnId); } });
+  AUTH.initSidebar('coord', 'c-benef');
+  API.get(AUTH.getScnFilter()).then(d => { if (window.renderPage) renderPage(d, AUTH.getScnFilter()); });
+}
+</script></body></html>

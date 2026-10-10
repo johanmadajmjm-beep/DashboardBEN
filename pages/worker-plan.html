@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id"><head><style>html,body{background:#F8FAFC}</style><script>if("startViewTransition" in document){addEventListener("pagereveal",e=>{if(e.viewTransition)e.viewTransition.ready.catch(()=>{})})}</script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CBR Worker — Perencanaan | MEL NLR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/components.css"/>
+<style>
+.ld-wrap{display:flex;gap:0;height:calc(100vh - 60px);overflow:hidden}
+.ld-list{width:100%;min-width:0;flex-shrink:0;background:#fff;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;overflow:hidden;transition:width .2s}
+.ld-wrap.detail-open .ld-list{width:300px;min-width:300px;}
+.ld-list-header{padding:12px 14px;border-bottom:1px solid #E5E7EB;flex-shrink:0}
+.ld-search{width:100%;padding:7px 10px;border:1px solid #E5E7EB;border-radius:8px;font-size:.75rem;font-family:inherit;background:#F9FAFB;outline:none;transition:.15s}
+.ld-search:focus{border-color:#F97316;background:#fff;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.ld-select{flex:1;padding:5px 8px;border:1px solid #E5E7EB;border-radius:6px;font-size:.7rem;font-family:inherit;background:#F9FAFB;outline:none}
+.ld-items{flex:1;overflow-y:auto}
+.ld-items::-webkit-scrollbar{width:4px}
+.ld-items::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:2px}
+.ld-item{padding:10px 14px;border-bottom:1px solid #F9FAFB;cursor:pointer;transition:background .1s;position:relative}
+.ld-item:hover{background:#FFF7ED}
+.ld-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.ld-item-name{font-size:.8rem;font-weight:600;color:#1F2937;margin-bottom:2px}
+.ld-item-sub{font-size:.67rem;color:#9CA3AF}
+.ld-detail{flex:1;overflow-y:auto;background:#F8FAFC;display:none}
+.ld-wrap.detail-open .ld-detail{display:block;}
+.ld-detail::-webkit-scrollbar{width:5px}
+.ld-detail::-webkit-scrollbar-thumb{background:#E5E7EB;border-radius:3px}
+.ld-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9CA3AF;gap:10px;padding:40px}
+.ld-empty svg{width:48px;height:48px;opacity:.3}
+.ld-empty p{font-size:.82rem;text-align:center}
+.det-wrap{padding:24px}
+.det-back{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#6B7280;font-size:.75rem;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-bottom:14px}
+.det-back:hover{background:#F9FAFB;color:#1F2937}
+.det-back svg{width:14px;height:14px}
+.det-name{font-size:1.1rem;font-weight:800;color:#1F2937;margin-bottom:6px}
+.det-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.det-chip{padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:600;background:#F3F4F6;color:#4B5563}
+.det-section{background:#fff;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.det-section-head{padding:10px 14px;border-bottom:1px solid #F3F4F6;font-size:.75rem;font-weight:700;color:#1F2937;display:flex;align-items:center;gap:6px}
+.det-section-body{padding:14px}
+.det-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #F9FAFB;font-size:.78rem;gap:12px}
+.det-row:last-child{border-bottom:none}
+.det-row-label{color:#6B7280;font-weight:500;flex-shrink:0;min-width:120px}
+.det-row-val{font-weight:500;color:#1F2937;text-align:right;line-height:1.5}
+.plan-field{background:#F9FAFB;border-radius:8px;padding:10px 12px;font-size:.78rem;color:#374151;line-height:1.65;margin-bottom:6px}
+.plan-field-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;margin-bottom:4px}
+.no-plan{background:#FFF7ED;border:1px dashed #FED7AA;border-radius:10px;padding:20px;text-align:center;color:#92400E;font-size:.78rem}
+
+/* View modes */
+.view-modes{display:flex;gap:3px}
+.vmode{width:26px;height:26px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#9CA3AF;transition:.12s}
+.vmode:hover{background:#F9FAFB;color:#6B7280}
+.vmode.active{background:#FFF7ED;border-color:#F97316;color:#F97316}
+.vmode svg{width:11px;height:11px}
+/* Card grid views */
+.card-grid{display:grid;gap:10px;padding:12px;overflow-y:auto;flex:1;align-items:start;align-content:start}
+.grid-xl{grid-template-columns:repeat(auto-fill,240px)}
+.grid-md{grid-template-columns:repeat(auto-fill,180px)}
+.grid-sm{grid-template-columns:repeat(auto-fill,120px)}
+.lst-wrap{flex:1;overflow-y:auto}
+.item-card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;cursor:pointer;transition:box-shadow .15s}
+.item-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.item-card.active{border-color:#F97316;background:#FFF7ED}
+.item-card-name{font-size:.78rem;font-weight:700;color:#1F2937;margin-bottom:3px}
+.item-card-sub{font-size:.64rem;color:#9CA3AF;line-height:1.4}
+.grid-sm .item-card-sub{display:none}
+.lst-item{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid #F3F4F6;cursor:pointer;transition:background .1s}
+.lst-item:hover{background:#FFF7ED}
+.lst-item.active{background:#FFF7ED;border-left:3px solid #F97316;padding-left:11px}
+.lst-item-name{font-size:.74rem;font-weight:600;color:#1F2937;flex:1}
+.lst-item-right{font-size:.68rem;color:#9CA3AF}
+.mode-md .ld-item{padding:8px 14px}
+.mode-md .ld-item-name{font-size:.77rem}
+.mode-sm .ld-item{padding:6px 14px}
+.mode-sm .ld-item-name{font-size:.74rem}
+.mode-sm .ld-item-sub{display:none}
+.mode-lst .ld-item{padding:5px 14px;border-bottom:1px solid #F9FAFB}
+.mode-lst .ld-item-name{font-size:.72rem}
+.mode-lst .ld-item-sub{display:none}
+</style>
+</head><body>
+<div class="app"><div class="main">
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="topbar-menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <div class="topbar-breadcrumb">CBR Worker <span class="sep">›</span><span class="current">Perencanaan</span></div>
+  </div>
+  <div class="topbar-right">
+    <div id="summary-card-form" style="display:flex;gap:6px;margin:0"></div>
+    <span class="scn-badge" id="scn-badge">—</span>
+    <span id="data-source-badge" style="font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:999px;display:none"></span>
+    <span class="topbar-date" id="topbar-date">—</span>
+  </div>
+</header>
+<div class="ld-wrap">
+  <div class="ld-list">
+    <div class="ld-list-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:.8rem;font-weight:700;color:#1F2937">Perencanaan (IRP)</span>
+        <div class="view-modes">
+          <button class="vmode active" id="vm-xl" onclick="setView('xl')" title="Normal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="vmode" id="vm-md" onclick="setView('md')" title="Sedang">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <button class="vmode" id="vm-sm" onclick="setView('sm')" title="Kompak">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="4"/><rect x="10" y="3" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/><rect x="3" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/><rect x="17" y="10" width="4" height="4"/></svg>
+          </button>
+          <button class="vmode" id="vm-lst" onclick="setView('lst')" title="List Row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="3" height="3"/><line x1="8" y1="6.5" x2="21" y2="6.5"/><rect x="3" y="11" width="3" height="3"/><line x1="8" y1="12.5" x2="21" y2="12.5"/><rect x="3" y="17" width="3" height="3"/><line x1="8" y1="18.5" x2="21" y2="18.5"/></svg>
+          </button>
+        </div>
+      </div>
+      <input class="ld-search" id="flt-search" type="text" placeholder="🔍  Cari nama anak..."/>
+      <div style="display:flex;gap:5px;margin-top:7px">
+        <select class="ld-select" id="flt-cbr"><option value="">Semua CBR Worker</option></select>
+        <select class="ld-select" id="flt-status"><option value="">Semua Status</option><option value="sudah">Sudah Rencana</option><option value="belum">Belum Rencana</option></select>
+      </div>
+      <div style="font-size:.68rem;color:#9CA3AF;margin-top:6px" id="ld-count">—</div>
+    </div>
+    <div class="card-grid grid-xl" id="view-xl"></div>
+    <div class="card-grid grid-md" id="view-md" style="display:none"></div>
+    <div class="card-grid grid-sm" id="view-sm" style="display:none"></div>
+    <div class="lst-wrap" id="view-lst" style="display:none"></div>
+  </div>
+
+  <div class="ld-detail" id="ld-detail"></div>
+</div>
+</div></div>
+
+<script>
+let ALL_ANAK=[], ALL_PLAN=[], PLAN_MAP={}, ACTIVE_VIEW='xl';
+
+function setView(v){
+  ACTIVE_VIEW=v;
+  ['xl','md','sm','lst'].forEach(x=>document.getElementById('vm-'+x).classList.toggle('active',x===v));
+  ['view-xl','view-md','view-sm','view-lst'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const t=document.getElementById('view-'+v);
+  if(t) t.style.display=(v==='lst')?'block':'grid';
+  renderList();
+}
+
+function renderPage(d,scnId){
+  window._d = d;
+  ALL_ANAK=d.anak||[];
+  // Card ringkasan
+  const _ada = (d.perencanaan||[]).length;
+  const _total = _ada; // jumlah row di form ini
+  const _pct = 100;
+  const _cardEl = document.getElementById('summary-card-form');
+  if(_cardEl) _cardEl.innerHTML = [
+    {v:_ada,l:'Perencanaan',c:'#16a34a'},
+  ].map(k=>`<div style="background:white;border:1px solid #E5E7EB;border-radius:8px;padding:6px 12px;text-align:center;min-width:60px"><div style="font-size:1rem;font-weight:800;color:${k.c};font-family:'JetBrains Mono',monospace">${k.v}</div><div style="font-size:.58rem;color:#9CA3AF;font-weight:600;text-transform:uppercase;letter-spacing:.05em">${k.l}</div></div>`).join('');
+  ALL_PLAN=d.perencanaan||[];
+  PLAN_MAP={};
+  ALL_PLAN.forEach(p=>{
+    const key=(p.nama_anak||p.na||'').toLowerCase();
+    if(!PLAN_MAP[key]) PLAN_MAP[key]=p;
+  });
+  const cbrs=[...new Set([...(window._d?.workers||[]).map(w=>w.nama),...ALL_ANAK.map(a=>a.cbr)].filter(Boolean))].sort();
+  const fC=document.getElementById('flt-cbr');
+  cbrs.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fC.appendChild(o);});
+  [fC,document.getElementById('flt-status')].forEach(el=>el.addEventListener('change',renderList));
+  document.getElementById('flt-search').addEventListener('input',renderList);
+  renderList();
+}
+
+function renderList(){
+  const cb=document.getElementById('flt-cbr').value;
+  const st=document.getElementById('flt-status').value;
+  const q=(document.getElementById('flt-search').value||'').toLowerCase();
+  // Tampilkan langsung dari data perencanaan yang ada
+  let list;
+  if(st==='belum'){
+    // Anak yang belum punya perencanaan (dari ALL_ANAK)
+    list=ALL_ANAK.filter(a=>{
+      if(cb&&a.cbr!==cb) return false;
+      if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+      return !PLAN_MAP[a.nama?.toLowerCase()];
+    });
+  } else {
+    // Default & sudah: dari data perencanaan langsung
+    list=ALL_PLAN.map(p=>({
+      nama:p.nama_anak||p.na||'—',
+      cbr:p.cbr_worker||p.cb||'—',
+      ragam:'',desa:'',level:'',gender:'',usia:'',gu:'',sp:null,sa:null,
+      _fromPlan:p
+    })).filter(a=>{
+      if(cb&&a.cbr!==cb) return false;
+      if(q&&!(a.nama||'').toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+  document.getElementById('ld-count').textContent=list.length+' anak';
+  const empty='<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem;grid-column:1/-1">Tidak ada data</div>';
+  const cardHTML=list.map((a,i)=>{
+    const hasPlan=!!PLAN_MAP[a.nama?.toLowerCase()];
+    const p=PLAN_MAP[a.nama?.toLowerCase()];
+    const badge=hasPlan?'<span style="font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#DCFCE7;color:#15803D">✓ Sudah</span>':'<span style="font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:999px;background:#FFF7ED;color:#EA6C0A">Belum</span>';
+    return `<div class="item-card" data-i="${i}">
+      <div class="item-card-name">${a.nama||'—'}</div>
+      <div class="item-card-sub">${a.cbr||'—'}<br>${hasPlan?(p?.tanggal_rencana||'Sudah diisi'):'Belum ada rencana'}</div>
+      <div style="margin-top:5px">${badge}</div>
+    </div>`;
+  }).join('');
+  const lstHTML=list.map((a,i)=>{
+    const hasPlan=!!PLAN_MAP[a.nama?.toLowerCase()];
+    const dot=hasPlan?'#15803D':'#EA6C0A';
+    return `<div class="lst-item" data-i="${i}">
+      <div style="width:7px;height:7px;border-radius:50%;background:${dot};flex-shrink:0"></div>
+      <span class="lst-item-name">${a.nama||'—'}</span>
+      <span class="lst-item-right">${a.cbr||'—'}</span>
+    </div>`;
+  }).join('');
+  ['xl','md','sm'].forEach(v=>{document.getElementById('view-'+v).innerHTML=list.length?cardHTML:empty;});
+  document.getElementById('view-lst').innerHTML=list.length?lstHTML:'<div style="text-align:center;padding:32px;color:#9CA3AF;font-size:.78rem">Tidak ada data</div>';
+  document.querySelectorAll('.item-card,.lst-item').forEach(el=>{
+    const i=parseInt(el.dataset.i);
+    el.onclick=()=>showDetail(el,list[i]);
+  });
+}
+
+let _lastEl=null;
+function showDetail(el,a){
+  if(_lastEl) _lastEl.classList.remove('active');
+  document.querySelectorAll('.item-card,.lst-item').forEach(e=>{if(e!==el)e.classList.remove('active');});
+  el.classList.add('active'); _lastEl=el;
+  document.querySelector('.ld-wrap').classList.add('detail-open');
+  const p=PLAN_MAP[a.nama?.toLowerCase()];
+  let content='';
+  if(p){
+    function tujuanSection(n){
+      const t=p['tujuan_'+n]||'';
+      const bg=p['bagaimana_'+n]||'';
+      const dm=p['dimana_'+n]||'';
+      const kp=p['kapan_'+n]||'';
+      const ak=p['aksi_'+n]||'';
+      if(!t&&!bg&&!dm&&!kp&&!ak) return '';
+      return `<div class="det-section">
+        <div class="det-section-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Tujuan ${n}</div>
+        <div class="det-section-body">
+          ${t?`<div class="plan-field"><div class="plan-field-label">Tujuan</div>${t}</div>`:''}
+          ${bg?`<div class="plan-field"><div class="plan-field-label">Bagaimana</div>${bg}</div>`:''}
+          ${dm?`<div class="plan-field"><div class="plan-field-label">Dimana</div>${dm}</div>`:''}
+          ${kp?`<div class="plan-field"><div class="plan-field-label">Kapan</div>${kp}</div>`:''}
+          ${ak?`<div class="plan-field"><div class="plan-field-label">Rencana Aksi</div>${ak}</div>`:''}
+        </div>
+      </div>`;
+    }
+    content=`
+      <div class="det-section">
+        <div class="det-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Info Rencana
+        </div>
+        <div class="det-section-body">
+          <div class="det-row"><span class="det-row-label">Tanggal Rencana</span><span class="det-row-val">${p.tanggal_rencana||'—'}</span></div>
+          <div class="det-row"><span class="det-row-label">CBR Worker</span><span class="det-row-val">${p.cbr_worker||a.cbr||'—'}</span></div>
+          <div class="det-row"><span class="det-row-label">Status</span><span><span class="badge badge-green">Sudah Direncanakan</span></span></div>
+        </div>
+      </div>
+      <div class="det-section">
+        <div class="det-section-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Kesulitan & Kesepakatan
+        </div>
+        <div class="det-section-body">
+          ${p.kesulitan_pengasuh?`<div class="plan-field"><div class="plan-field-label">Kesulitan Pengasuh</div>${p.kesulitan_pengasuh}</div>`:''}
+          ${p.kesulitan_pekerja?`<div class="plan-field"><div class="plan-field-label">Kesulitan Pekerja</div>${p.kesulitan_pekerja}</div>`:''}
+          ${p.kesulitan_kesepakatan?`<div class="plan-field"><div class="plan-field-label">Kesepakatan</div>${p.kesulitan_kesepakatan}</div>`:''}
+          ${!p.kesulitan_pengasuh&&!p.kesulitan_pekerja&&!p.kesulitan_kesepakatan?'<div style="color:#9CA3AF;font-size:.78rem;text-align:center;padding:10px">Tidak ada data</div>':''}
+        </div>
+      </div>
+      ${tujuanSection(1)}
+      ${tujuanSection(2)}
+      ${tujuanSection(3)}`;
+  } else {
+    content=`<div class="no-plan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:32px;height:32px;margin:0 auto 8px;display:block;opacity:.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <p style="font-weight:700;margin-bottom:4px">Belum Ada Rencana</p>
+      <p>CBR Worker belum mengisi form Perencanaan (IRP) untuk anak ini melalui KoboToolbox.</p>
+    </div>`;
+  }
+  document.getElementById('ld-detail').innerHTML=`
+    <div class="det-wrap">
+    <button class="det-back" onclick="clearDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Kembali
+    </button>
+    <div class="det-name">${a.nama||'—'}</div>
+    <div class="det-meta">
+      <span class="det-chip">👤 ${a.cbr||'—'}</span>
+      <span class="det-chip">📍 ${a.desa||'—'}</span>
+      <span class="det-chip">🏷 ${a.ragam||'—'}</span>
+      <span class="det-chip">${a.usia||'?'} th · ${a.gender==='L'?'L':'P'}</span>
+    </div>
+    ${content}
+    </div>
+  `;
+}
+function clearDetail(){
+  document.querySelector('.ld-wrap').classList.remove('detail-open');
+  if(_lastEl){_lastEl.classList.remove('active');_lastEl=null;}
+}
+</script>
+<script src="../js/auth.js"></script>
+<script src="../js/sidebar.js"></script>
+<script src="../js/api.js"></script>
+<script>
+buildSidebar();
+const SESSION=AUTH.requireAuth('../index.html');
+if(SESSION){
+  AUTH.applySession({onScnSwitch:async function(scnId){const d=await API.get(scnId);if(window.renderPage)renderPage(d,scnId);}});
+  AUTH.initSidebar('worker','w-plan');
+  API.get(AUTH.getScnFilter()).then(d=>{if(window.renderPage)renderPage(d,AUTH.getScnFilter());});
+}
+</script></body></html>
